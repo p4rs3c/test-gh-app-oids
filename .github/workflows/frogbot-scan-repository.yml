@@ -1,0 +1,30 @@
+name: "Frogbot Scan Repository"
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+permissions:
+  pull-requests: write
+  contents: write
+  security-events: write
+
+jobs:
+  scan-repository:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        branch: ["main"]
+    steps:
+      - uses: jfrog/frogbot@v3
+        env:
+          JFROG_CLI_LOG_LEVEL: DEBUG
+          JF_URL: ${{ secrets.JF_URL }}
+        with:
+          oidc-provider-name: p4rs3c/test-gh-app-oids@github
+          JF_GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          JF_GIT_BASE_BRANCH: ${{ matrix.branch }}
